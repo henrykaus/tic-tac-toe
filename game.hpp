@@ -13,9 +13,9 @@ class game
 
         void start();
         void initialize();
-        void print_players();
         void play();
-        char choose_starting_player();
+        void choose_symbol();
+        void print_players();
         bool again();
 
     private:
@@ -33,4 +33,4 @@ class game
         void turn(const std::string &, char);
 };
 
-#endif
+#endif // GAME

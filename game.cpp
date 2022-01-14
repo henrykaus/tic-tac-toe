@@ -1,6 +1,7 @@
 #include "game.hpp"
 using namespace std;
 
+// Default Constructor
 game::game() : player_1("NONE"), player_2("NONE"), player_1_letter('0'), player_2_letter('0'), player_1_wins(0), player_2_wins(0)
 {
 }
@@ -13,12 +14,6 @@ void game::start()
     play();
 }
 
-void game::print_players()
-{
-    cout << "Player 1: " << player_1 << " | " << player_1_letter << " | " << player_1_wins << " wins" << endl
-         << "Player 2: " << player_2 << " | " << player_2_letter << " | " << player_2_wins << " wins" << endl;
-}
-
 void game::initialize()
 {
     char letter_1;
@@ -27,6 +22,58 @@ void game::initialize()
     getline(cin, player_1);
     cout << "Who is player 2? ";
     getline(cin, player_2);
+}
+
+void game::play()
+{
+    char winner;
+    int  whos_turn;
+
+    do
+    {    
+        cout << endl;
+	    choose_symbol();
+        
+        whos_turn = (player_1_letter == 'X') ? 1 : 2;
+
+        cout << endl;
+        print_players();
+        cout << endl;
+        game_board.display();
+        cout << endl << endl;
+
+	    do
+	    {
+	        if (whos_turn % 2 != 0)
+	            turn(player_1, player_1_letter);
+	        else
+	            turn(player_2, player_2_letter);
+	        ++whos_turn;
+            winner = game_board.check_win();
+	    } while (winner == 'D' && !game_board.board_is_full());
+	
+        if (winner == player_1_letter)
+        {
+	        cout << player_1 << " is the winner!" << endl;
+            ++player_1_wins;
+        }
+	    else if (winner == player_2_letter)
+        {
+	        cout << player_2 << " is the winner!" << endl;
+            ++player_2_wins;
+        }
+        else
+            cout << "Sometimes, no one wins." << endl;
+
+    } while (again());
+
+    cout << endl << "Final Score:" << endl;
+    print_players();
+}
+
+void game::choose_symbol()
+{
+    char letter_1;
 
     cout << player_1 << ", what letter would you like to take (X/O)? ";
     cin  >> letter_1;
@@ -42,84 +89,13 @@ void game::initialize()
     } 
 
     player_1_letter = letter_1;
-
-    if (player_1_letter == 'X')
-        player_2_letter = 'O';
-    else
-        player_2_letter = 'X';
+    player_2_letter = (player_1_letter == 'X') ? 'O' : 'X';
 }
 
-void game::play()
+void game::print_players()
 {
-    int  winner;
-    char winning_letter;
-    int  whos_turn;
-
-    do
-    {    
-        cout << endl;
-        print_players();
-	    whos_turn = choose_starting_player();
-        cout << endl;
-        game_board.display();
-        cout << endl << endl;
-
-	    do
-	    {
-	        if (whos_turn % 2 != 0)
-	            turn(player_1, player_1_letter);
-	        else
-	            turn(player_2, player_2_letter);
-	        ++whos_turn;
-            winner = game_board.check_win();
-	    } while (!winner && !game_board.board_is_full());
-	
-	    if (winner == -1)
-	        winning_letter = 'O';
-	    else if (winner == 1)
-	        winning_letter = 'X';
-        else
-            winning_letter = 'D';
-	
-        if (winning_letter == player_1_letter)
-        {
-	        cout << player_1 << " is the winner!" << endl;
-            ++player_1_wins;
-        }
-	    else if (winning_letter == player_2_letter)
-        {
-	        cout << player_2 << " is the winner!" << endl;
-            ++player_2_wins;
-        }
-        else
-            cout << "Sometimes, no one wins." << endl;
-
-    } while (again());
-}
-
-bool game::again()
-{
-    char option;
-
-    cout << "Would you like to play again (Y/N)? ";
-    cin  >> option;
-    option = toupper(option);
-    cin.ignore(10000, '\n');
-
-    while (option != 'Y' && option != 'N')
-    {
-        cout << "Enter a valid option: ";
-        cin  >> option;
-        option = toupper(option);
-        cin.ignore(10000, '\n');
-    } 
-
-    game_board.reset();
-
-    if (option == 'Y')
-        return true;
-    else
-        return false;
+    cout << "Player 1: " << player_1 << " | " << player_1_letter << " | " << player_1_wins << " wins" << endl
+         << "Player 2: " << player_2 << " | " << player_2_letter << " | " << player_2_wins << " wins" << endl;
 }
 
 void game::turn(const string & player, char letter)
@@ -142,20 +118,24 @@ void game::turn(const string & player, char letter)
     cout << endl << endl;
 }
 
-char game::choose_starting_player()
+bool game::again()
 {
-    int option;
+    char option;
 
-    cout << "Who would like to go first (1/2)? ";
+    cout << "Would you like to play again (Y/N)? ";
     cin  >> option;
+    option = toupper(option);
+    cin.ignore(10000, '\n');
 
-    while (cin.fail() || option < 1 || option > 2)
+    while (option != 'Y' && option != 'N')
     {
-        cin.clear();
-        cin.ignore(10000, '\n');
-        cout << "Enter a valid number: ";
+        cout << "Enter a valid option: ";
         cin  >> option;
+        option = toupper(option);
+        cin.ignore(10000, '\n');
     } 
-    
-    return option;
+
+    game_board.reset();
+
+    return option == 'Y';
 }
